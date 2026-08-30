@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CamLife (ជីវិតកម្ពុជា) - All-in-One Real Cambodia Life & Province Portal</title>
+  
+  <!-- Meta description -->
+  <meta name="description" content="CamLife (ជីវិតកម្ពុជា) - 100% Verified Cambodian Places, Hospitals, Restaurants, 25 Provinces, Jobs, and 24/7 Emergency Services.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            },
+            angkor: {
+              gold: '#F59E0B',
+              'gold-dark': '#D97706',
+              amber: '#B45309'
+            },
+            khmer: {
+              blue: '#1E3A8A',
+              red: '#DC2626',
+              gold: '#F59E0B',
+              green: '#10B981'
+            }
+          },
+          fontFamily: {
+            khmer: ['"Kantumruy Pro"', 'sans-serif'],
+            display: ['"Koulen"', '"Kantumruy Pro"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom CSS with Angkor Wat Concept -->
+  <script type="module" crossorigin src="/assets/index-C8DH7FxX.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DoO1XFVt.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <div id="app" class="flex flex-col min-h-screen" v-cloak>
+
+    <!-- TOAST NOTIFICATION -->
+    <div v-if="toast.show" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 animate-bounce">
+      <div class="px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-semibold border"
+           :class="toast.type === 'success' ? 'bg-blue-600 text-white border-blue-500' : 'bg-amber-600 text-white border-amber-500'">
+        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-info'"></i>
+        <span>{{ toast.message }}</span>
+      </div>
+    </div>
+
+    <!-- MAIN HEADER NAVIGATION -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- CamLife Brand -->
+          <div @click="setPage('home')" class="flex items-center gap-2.5 cursor-pointer select-none group">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-900 via-blue-700 to-amber-500 flex items-center justify-center text-white shadow-sm font-bold text-sm group-hover:scale-105 transition-transform">
+              <i class="fa-solid fa-landmark-dome text-amber-300 text-sm"></i>
+            </div>
+            <div class="flex flex-col">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xl sm:text-2xl font-bold font-koulen tracking-tight text-blue-950">Cam<span class="text-amber-500">Life</span></span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800 font-bold border border-amber-300 hidden sm:inline">ជីវិតកម្ពុជា</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop Navigation Links -->
+          <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+            <button @click="setPage('home')" :class="currentPage === 'home' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'" class="transition">
+              {{ t.navHome }}
+            </button>
+            <button @click="setPage('near-me')" :class="currentPage === 'near-me' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'" class="transition flex items-center gap-1">
+              <i class="fa-solid fa-location-crosshairs text-blue-500"></i>
+              <span>{{ t.navNearMe }}</span>
+            </button>
+            <button @click="setPage('provinces')" :class="currentPage === 'provinces' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'" class="transition flex items-center gap-1">
+              <i class="fa-solid fa-map text-amber-500"></i>
+              <span>{{ t.navProvinces }}</span>
+            </button>
+            <button @click="setPage('jobs')" :class="currentPage === 'jobs' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'" class="transition">
+              {{ t.navJobs }}
+            </button>
+            <button @click="setPage('emergency')" :class="currentPage === 'emergency' ? 'text-red-600 font-semibold' : 'hover:text-red-600'" class="transition flex items-center gap-1">
+              <i class="fa-solid fa-phone-volume text-red-500"></i>
+              <span>{{ t.navEmergency }}</span>
+            </button>
+            <button @click="setPage('about')" :class="currentPage === 'about' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'" class="transition">
+              {{ t.navAbout }}
+            </button>
+          </nav>
+
+          <!-- Right Controls: Language Selector -->
+          <div class="flex items-center gap-3 text-xs font-semibold">
+            <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+              <button @click="toggleLang('en')" :class="currentLang === 'en' ? 'bg-white text-blue-700 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-md transition">
+                EN
+              </button>
+              <span class="text-slate-300 mx-0.5">|</span>
+              <button @click="toggleLang('kh')" :class="currentLang === 'kh' ? 'bg-white text-blue-700 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-md transition">
+                KH
+              </button>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 text-slate-600 hover:text-blue-600 focus:outline-none">
+              <i :class="mobileMenuOpen ? 'fa-solid fa-xmark text-lg' : 'fa-solid fa-bars text-lg'"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div v-if="mobileMenuOpen" class="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2 text-sm font-medium shadow-lg">
+        <button @click="setPage('home')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-house text-blue-600 w-5"></i> {{ t.navHome }}
+        </button>
+        <button @click="setPage('near-me')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-location-crosshairs text-blue-500 w-5"></i> {{ t.navNearMe }}
+        </button>
+        <button @click="setPage('provinces')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-map text-amber-500 w-5"></i> {{ t.navProvinces }}
+        </button>
+        <button @click="setPage('jobs')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-briefcase text-emerald-600 w-5"></i> {{ t.navJobs }}
+        </button>
+        <button @click="setPage('emergency')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-phone-volume text-red-600 w-5"></i> {{ t.navEmergency }}
+        </button>
+        <button @click="setPage('about')" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-slate-600 w-5"></i> {{ t.navAbout }}
+        </button>
+      </div>
+    </header>
+
+    <!-- TRUST & VERIFICATION NOTICE BAR -->
+    <div class="bg-blue-900 text-blue-100 text-[11px] py-1.5 px-4 text-center border-b border-blue-800 flex items-center justify-center gap-2">
+      <i class="fa-solid fa-shield-halved text-amber-400"></i>
+      <span>{{ t.disclaimerNotice }}</span>
+    </div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="flex-grow">
+
+      <!-- ========================================================= -->
+      <!-- 1. HOME PAGE (CamLife with Hero + Near Me + Province Highlights) -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'home'" class="space-y-12 pb-16">
+        
+        <!-- Hero Section with Authentic Angkor Wat Background -->
+        <div class="relative bg-slate-900 text-white overflow-hidden py-16 sm:py-24 min-h-[420px] flex items-center justify-center">
+          <div class="absolute inset-0 z-0">
+            <img src="/assets/angkor_wat_hero-DJoy_x8Q.jpg" alt="Angkor Wat Temple Cambodia" class="w-full h-full object-cover object-center">
+          </div>
+          <div class="absolute inset-0 angkor-hero-bg z-0"></div>
+
+          <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-3">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full angkor-badge text-xs font-semibold mb-1 backdrop-blur-md">
+              <i class="fa-solid fa-landmark-dome text-amber-400"></i>
+              <span>{{ currentLang === 'kh' ? '១០០% ព័ត៌មានពិតប្រាកដនៅកម្ពុជា • ជំនួយការរស់នៅប្រចាំថ្ងៃ' : '100% Authentic Cambodia Places & Daily Life Portal' }}</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl font-bold font-koulen tracking-tight text-white leading-tight">
+              Cam<span class="text-amber-400">Life</span>
+              <span class="text-xl sm:text-2xl font-normal text-amber-300 block sm:inline sm:ml-2">ជីវិតកម្ពុជា</span>
+            </h1>
+
+            <p class="text-sm sm:text-base text-slate-200 max-w-xl mx-auto font-light leading-relaxed">
+              {{ t.subTagline }}
+            </p>
+
+            <!-- Search Bar -->
+            <div class="max-w-xl mx-auto pt-3">
+              <form @submit.prevent="handleGlobalSearch" class="relative flex items-center bg-white rounded-2xl shadow-2xl p-1.5 border border-amber-400/30">
+                <input
+                  v-model="globalSearch"
+                  type="text"
+                  :placeholder="t.searchPlaceholder"
+                  class="w-full bg-transparent text-slate-800 placeholder-slate-400 text-xs sm:text-sm outline-none px-4 py-2 font-medium"
+                >
+                <button type="submit" class="w-10 h-10 rounded-xl bg-blue-700 hover:bg-blue-800 text-white flex items-center justify-center shrink-0 shadow transition">
+                  <i class="fa-solid fa-magnifying-glass text-sm text-amber-300"></i>
+                </button>
+              </form>
+            </div>
+
+            <!-- Fast Category Discovery Badges -->
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs">
+              <button @click="nearMeCategory = 'hospitals'; setPage('near-me')" class="px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium transition flex items-center gap-1">
+                🏥 {{ t.nearHospitals }}
+              </button>
+              <button @click="nearMeCategory = 'restaurants'; setPage('near-me')" class="px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium transition flex items-center gap-1">
+                🍜 {{ t.nearRestaurants }}
+              </button>
+              <button @click="nearMeCategory = 'banks'; setPage('near-me')" class="px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium transition flex items-center gap-1">
+                🏧 {{ t.nearBanks }}
+              </button>
+              <button @click="setPage('provinces')" class="px-3 py-1 rounded-full bg-amber-500/80 hover:bg-amber-600 text-white font-semibold transition flex items-center gap-1">
+                🗺️ {{ t.navProvinces }}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+          
+          <!-- 1. "NEAR ME" FEATURED PLACES SECTION (Using Standardized Real Place Cards) -->
+          <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-location-dot text-red-500"></i>
+                  <span>{{ currentLang === 'kh' ? 'ទីតាំងសំខាន់ៗដែលបានផ្ទៀងផ្ទាត់ (Verified Places)' : 'Verified Places in Cambodia' }}</span>
+                </h2>
+                <p class="text-xs text-slate-500">{{ currentLang === 'kh' ? 'ស្វែងរកមន្ទីរពេទ្យ ភោជនីយដ្ឋាន ធនាគារ និងផ្សារទំនើបជាក់ស្តែង' : 'Explore authentic hospitals, dining, banks, and markets' }}</p>
+              </div>
+
+              <button @click="setPage('near-me')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <span>{{ currentLang === 'kh' ? 'មើលកន្លែងទាំងអស់ជិតអ្នក →' : 'Explore All Places Near Me →' }}</span>
+              </button>
+            </div>
+
+            <!-- Place Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div v-for="place in filteredPlaces.slice(0, 6)" :key="place.id"
+                   class="place-card flex flex-col justify-between">
+                
+                <div>
+                  <!-- Place Image Cover -->
+                  <div class="relative h-44 w-full bg-slate-200 overflow-hidden group">
+                    <img :src="place.image" :alt="place.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    
+                    <!-- Category Badge -->
+                    <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-blue-900/90 text-white text-xs font-semibold backdrop-blur-md shadow">
+                      <i :class="place.categoryIcon" class="mr-1 text-amber-300"></i>
+                      {{ currentLang === 'kh' ? place.categoryLabelKh : place.categoryLabel }}
+                    </span>
+
+                    <!-- Favorite Button -->
+                    <button @click="toggleFavorite(place.id)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 flex items-center justify-center shadow transition" :title="t.saveToFavorites">
+                      <i :class="isFavorite(place.id) ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'"></i>
+                    </button>
+
+                    <!-- Distance Pill -->
+                    <span class="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white text-[11px] font-medium backdrop-blur-xs">
+                      📍 {{ currentLang === 'kh' ? place.distanceKh : place.distance }}
+                    </span>
+                  </div>
+
+                  <!-- Card Body -->
+                  <div class="p-5 space-y-2">
+                    <h3 @click="openPlaceDetail(place)" class="font-bold text-slate-900 text-base hover:text-blue-600 transition cursor-pointer leading-snug">
+                      {{ currentLang === 'kh' ? place.nameKh : place.name }}
+                    </h3>
+
+                    <!-- Location & Rating -->
+                    <div class="flex items-center justify-between text-xs text-slate-500">
+                      <span class="flex items-center gap-1 text-slate-600 font-medium">
+                        <i class="fa-solid fa-map-pin text-red-500"></i>
+                        {{ currentLang === 'kh' ? place.provinceKh : place.province }}, {{ currentLang === 'kh' ? place.districtKh : place.district }}
+                      </span>
+                      <span class="text-amber-500 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-star text-[10px]"></i> {{ place.rating }} ({{ place.reviewsCount }})
+                      </span>
+                    </div>
+
+                    <!-- Address -->
+                    <p class="text-xs text-slate-500 line-clamp-1">
+                      {{ currentLang === 'kh' ? place.addressKh : place.address }}
+                    </p>
+
+                    <!-- Hours & Phone -->
+                    <div class="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs border-t border-slate-100 text-slate-600">
+                      <span class="flex items-center gap-1 font-semibold text-emerald-700">
+                        <i class="fa-regular fa-clock text-emerald-600"></i>
+                        {{ currentLang === 'kh' ? place.hoursKh : place.hours }}
+                      </span>
+                      <span v-if="place.phone" class="font-medium text-slate-500">
+                        <i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ place.phone }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div class="p-5 pt-0 grid grid-cols-3 gap-2">
+                  <button @click="openPlaceDetail(place)" class="py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition text-center">
+                    {{ t.viewDetails }}
+                  </button>
+                  <button @click="callNumber(place.phone)" class="py-2 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>{{ t.callNow }}</span>
+                  </button>
+                  <button @click="openDirections(place)" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center justify-center gap-1 shadow-xs">
+                    <i class="fa-solid fa-location-arrow"></i>
+                    <span>{{ t.getDirections }}</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. 25 PROVINCES INTERACTIVE PREVIEW BANNER -->
+          <section class="rounded-3xl bg-gradient-to-r from-blue-950 via-slate-900 to-blue-900 text-white p-6 sm:p-10 shadow-lg relative overflow-hidden">
+            <div class="relative z-10 space-y-6">
+              <div class="max-w-2xl space-y-2">
+                <span class="px-3 py-1 rounded-full angkor-badge text-xs font-semibold">
+                  🗺️ {{ currentLang === 'kh' ? 'រុករកទិន្នន័យខេត្ត-រាជធានី' : 'Cambodia Regional Directory' }}
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold font-koulen text-white">
+                  {{ t.provincesTitle }}
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300 font-light">
+                  {{ t.provincesSubtitle }}
+                </p>
+              </div>
+
+              <!-- Quick Province Cards (Takeo, Siem Reap, Kampot, Battambang...) -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div v-for="prov in provinces.slice(0, 4)" :key="prov.id"
+                     @click="selectedProvince = prov; setPage('provinces')"
+                     class="p-4 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 cursor-pointer transition transform hover:-translate-y-1 space-y-1">
+                  <h3 class="font-bold text-sm text-amber-300">{{ currentLang === 'kh' ? prov.nameKh : prov.name }}</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">{{ currentLang === 'kh' ? prov.taglineKh : prov.tagline }}</p>
+                  <span class="text-[10px] text-blue-200 block pt-1 font-semibold">Explore ➔</span>
+                </div>
+              </div>
+
+              <div class="text-center pt-2">
+                <button @click="setPage('provinces')" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition">
+                  {{ currentLang === 'kh' ? 'មើលខេត្តទាំង ២៥ នៅកម្ពុជា' : 'Explore All 25 Provinces' }}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. VERIFIED JOBS PREVIEW -->
+          <section class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-briefcase text-emerald-600"></i>
+                  <span>{{ t.jobsTitle }}</span>
+                </h2>
+                <p class="text-xs text-slate-500">{{ t.jobsSubtitle }}</p>
+              </div>
+              <button @click="setPage('jobs')" class="text-xs font-bold text-blue-600 hover:text-blue-800">
+                {{ currentLang === 'kh' ? 'មើលការងារទាំងអស់ →' : 'View All Jobs →' }}
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div v-for="job in jobs" :key="job.id"
+                   @click="selectedJob = job; setPage('job-detail')"
+                   class="place-card p-4 flex flex-col justify-between cursor-pointer hover:border-emerald-400 group">
+                <div class="space-y-2">
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold">
+                    {{ job.type }}
+                  </span>
+                  <h3 class="font-bold text-slate-900 text-sm group-hover:text-emerald-700 transition">
+                    {{ currentLang === 'kh' ? job.titleKh : job.title }}
+                  </h3>
+                  <p class="text-xs text-slate-500">{{ currentLang === 'kh' ? job.companyKh : job.company }}</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 mt-2">
+                  <span class="text-emerald-600">{{ job.salary }}</span>
+                  <span class="text-blue-600 font-medium">Apply ➔</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. 24/7 EMERGENCY HOTLINES -->
+          <section class="space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-phone-volume text-red-500 animate-pulse"></i>
+              <span>{{ t.emergencyTitle }}</span>
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div @click="callNumber('117')" class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-center cursor-pointer hover:shadow-md transition">
+                <i class="fa-solid fa-shield-halved text-2xl text-blue-700 mb-1"></i>
+                <div class="font-bold text-xs text-slate-800">{{ t.police117 }}</div>
+                <div class="text-2xl font-bold font-koulen text-blue-900">117</div>
+              </div>
+
+              <div @click="callNumber('118')" class="p-4 rounded-2xl bg-red-50 border border-red-200 text-center cursor-pointer hover:shadow-md transition">
+                <i class="fa-solid fa-fire-extinguisher text-2xl text-red-600 mb-1"></i>
+                <div class="font-bold text-xs text-slate-800">{{ t.fire118 }}</div>
+                <div class="text-2xl font-bold font-koulen text-red-600">118</div>
+              </div>
+
+              <div @click="callNumber('119')" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center cursor-pointer hover:shadow-md transition">
+                <i class="fa-solid fa-truck-medical text-2xl text-emerald-600 mb-1"></i>
+                <div class="font-bold text-xs text-slate-800">{{ t.ambulance119 }}</div>
+                <div class="text-2xl font-bold font-koulen text-emerald-700">119</div>
+              </div>
+
+              <div @click="callNumber('1288')" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center cursor-pointer hover:shadow-md transition">
+                <i class="fa-solid fa-baby text-2xl text-amber-600 mb-1"></i>
+                <div class="font-bold text-xs text-slate-800">Kantha Bopha (Free)</div>
+                <div class="text-2xl font-bold font-koulen text-amber-700">1288</div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- 2. "NEAR ME" DEDICATED DISCOVERY ENGINE (Map + Cards) -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'near-me'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-location-crosshairs text-blue-600"></i>
+              <span>{{ t.nearMeTitle }}</span>
+            </h1>
+            
+            <!-- Current Location Badge -->
+            <div class="px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-800 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>📍 {{ currentLang === 'kh' ? 'ទីតាំងបច្ចុប្បន្ន៖ រាជធានីភ្នំពេញ (ដូនពេញ / បឹងកេងកង)' : 'Current: Phnom Penh Central (Daun Penh / BKK1)' }}</span>
+            </div>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500">{{ t.nearMeSubtitle }}</p>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <button @click="nearMeCategory = 'all'" :class="nearMeCategory === 'all' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            {{ currentLang === 'kh' ? 'ទាំងអស់' : 'All Places' }}
+          </button>
+          <button @click="nearMeCategory = 'hospitals'" :class="nearMeCategory === 'hospitals' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            🏥 {{ t.nearHospitals }}
+          </button>
+          <button @click="nearMeCategory = 'pharmacies'" :class="nearMeCategory === 'pharmacies' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            💊 {{ t.nearPharmacies }}
+          </button>
+          <button @click="nearMeCategory = 'restaurants'" :class="nearMeCategory === 'restaurants' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            🍜 {{ t.nearRestaurants }}
+          </button>
+          <button @click="nearMeCategory = 'banks'" :class="nearMeCategory === 'banks' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            🏧 {{ t.nearBanks }}
+          </button>
+          <button @click="nearMeCategory = 'supermarkets'" :class="nearMeCategory === 'supermarkets' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            🛒 {{ t.nearSupermarkets }}
+          </button>
+          <button @click="nearMeCategory = 'housing'" :class="nearMeCategory === 'housing' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-xs transition">
+            🏠 {{ t.nearHousing }}
+          </button>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-400 text-xs"></i>
+          <input
+            v-model="nearMeSearch"
+            type="text"
+            placeholder="Search venue name, district (e.g. BKK1, Daun Penh, Sen Sok)..."
+            class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 shadow-xs"
+          >
+        </div>
+
+        <!-- Near Me Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="place in filteredNearMePlaces" :key="place.id"
+               class="place-card flex flex-col justify-between">
+            
+            <div>
+              <!-- Place Image Cover -->
+              <div class="relative h-44 w-full bg-slate-200 overflow-hidden group">
+                <img :src="place.image" :alt="place.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                
+                <!-- Category Badge -->
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-blue-900/90 text-white text-xs font-semibold backdrop-blur-md shadow">
+                  <i :class="place.categoryIcon" class="mr-1 text-amber-300"></i>
+                  {{ currentLang === 'kh' ? place.categoryLabelKh : place.categoryLabel }}
+                </span>
+
+                <!-- Favorite Button -->
+                <button @click="toggleFavorite(place.id)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 flex items-center justify-center shadow transition" :title="t.saveToFavorites">
+                  <i :class="isFavorite(place.id) ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'"></i>
+                </button>
+
+                <!-- Distance Pill -->
+                <span class="absolute bottom-3 right-3 px-2.5 py-0.5 rounded-md bg-black/70 text-white text-[11px] font-semibold backdrop-blur-xs">
+                  📍 {{ currentLang === 'kh' ? place.distanceKh : place.distance }}
+                </span>
+              </div>
+
+              <!-- Card Body -->
+              <div class="p-5 space-y-2">
+                <h3 @click="openPlaceDetail(place)" class="font-bold text-slate-900 text-base hover:text-blue-600 transition cursor-pointer leading-snug">
+                  {{ currentLang === 'kh' ? place.nameKh : place.name }}
+                </h3>
+
+                <!-- Location & Rating -->
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                  <span class="flex items-center gap-1 text-slate-600 font-medium">
+                    <i class="fa-solid fa-map-pin text-red-500"></i>
+                    {{ currentLang === 'kh' ? place.provinceKh : place.province }}, {{ currentLang === 'kh' ? place.districtKh : place.district }}
+                  </span>
+                  <span class="text-amber-500 font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-star text-[10px]"></i> {{ place.rating }} ({{ place.reviewsCount }})
+                  </span>
+                </div>
+
+                <!-- Address -->
+                <p class="text-xs text-slate-500 line-clamp-1">
+                  {{ currentLang === 'kh' ? place.addressKh : place.address }}
+                </p>
+
+                <!-- Hours & Phone -->
+                <div class="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs border-t border-slate-100 text-slate-600">
+                  <span class="flex items-center gap-1 font-semibold text-emerald-700">
+                    <i class="fa-regular fa-clock text-emerald-600"></i>
+                    {{ currentLang === 'kh' ? place.hoursKh : place.hours }}
+                  </span>
+                  <span v-if="place.phone" class="font-medium text-slate-500">
+                    <i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ place.phone }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="p-5 pt-0 grid grid-cols-3 gap-2">
+              <button @click="openPlaceDetail(place)" class="py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition text-center">
+                {{ t.viewDetails }}
+              </button>
+              <button @click="callNumber(place.phone)" class="py-2 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-phone"></i>
+                <span>{{ t.callNow }}</span>
+              </button>
+              <button @click="openDirections(place)" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center justify-center gap-1 shadow-xs">
+                <i class="fa-solid fa-location-arrow"></i>
+                <span>{{ t.getDirections }}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- 3. INTERACTIVE 25 PROVINCES OF CAMBODIA EXPLORER -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'provinces'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-map text-amber-500"></i>
+            <span>{{ t.provincesTitle }}</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">{{ t.provincesSubtitle }}</p>
+        </div>
+
+        <!-- 25 Provinces Selector Grid -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          <button v-for="prov in provinces" :key="prov.id"
+                  @click="selectedProvince = prov; provinceTab = 'attractions'"
+                  :class="selectedProvince.id === prov.id ? 'bg-blue-900 text-amber-300 font-bold border-amber-400 shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
+                  class="px-3.5 py-2 rounded-xl text-xs border whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-location-dot text-[11px]" :class="selectedProvince.id === prov.id ? 'text-amber-400' : 'text-slate-400'"></i>
+            <span>{{ currentLang === 'kh' ? prov.nameKh : prov.name }}</span>
+          </button>
+        </div>
+
+        <!-- SELECTED PROVINCE ACTIVE DASHBOARD (Example: Takeo, Siem Reap, Kampot...) -->
+        <div class="space-y-6">
+          
+          <!-- Province Banner Header -->
+          <div class="relative rounded-3xl overflow-hidden bg-slate-900 text-white p-6 sm:p-10 shadow-lg">
+            <img :src="selectedProvince.image" :alt="selectedProvince.name" class="absolute inset-0 w-full h-full object-cover opacity-35">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-slate-900/80 to-transparent"></div>
+            
+            <div class="relative z-10 max-w-2xl space-y-2">
+              <span class="px-3 py-1 rounded-full angkor-badge text-xs font-semibold">
+                {{ currentLang === 'kh' ? 'ទីរួមខេត្ត៖ ' + selectedProvince.capitalKh : 'Provincial Capital: ' + selectedProvince.capital }}
+              </span>
+              <h2 class="text-3xl sm:text-4xl font-bold font-koulen text-white">
+                {{ currentLang === 'kh' ? selectedProvince.nameKh : selectedProvince.name }}
+              </h2>
+              <p class="text-sm text-slate-200 leading-relaxed font-light">
+                {{ currentLang === 'kh' ? selectedProvince.taglineKh : selectedProvince.tagline }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Province Sub-Tabs (Attractions, Hospitals, Restaurants, Hotels, Jobs, Housing, Education, Transport) -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-slate-200 pb-2">
+            <button @click="provinceTab = 'attractions'" :class="provinceTab === 'attractions' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🏛️ {{ t.tabAttractions }}
+            </button>
+            <button @click="provinceTab = 'hospitals'" :class="provinceTab === 'hospitals' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🏥 {{ t.tabHospitals }}
+            </button>
+            <button @click="provinceTab = 'restaurants'" :class="provinceTab === 'restaurants' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🍜 {{ t.tabRestaurants }}
+            </button>
+            <button @click="provinceTab = 'hotels'" :class="provinceTab === 'hotels' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🏨 {{ t.tabHotels }}
+            </button>
+            <button @click="provinceTab = 'jobs'" :class="provinceTab === 'jobs' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              💼 {{ t.tabJobs }}
+            </button>
+            <button @click="provinceTab = 'housing'" :class="provinceTab === 'housing' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🏠 {{ t.tabHousing }}
+            </button>
+            <button @click="provinceTab = 'education'" :class="provinceTab === 'education' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🎓 {{ t.tabEducation }}
+            </button>
+            <button @click="provinceTab = 'transportation'" :class="provinceTab === 'transportation' ? 'text-blue-700 font-bold border-b-2 border-blue-700 pb-2' : 'text-slate-500 hover:text-slate-800'" class="px-3 py-1 text-xs whitespace-nowrap transition">
+              🚌 {{ t.tabTransportation }}
+            </button>
+          </div>
+
+          <!-- TAB CONTENT DISPLAY -->
+          <div class="place-card p-6 space-y-4">
+            
+            <!-- 1. Attractions -->
+            <div v-if="provinceTab === 'attractions'" class="space-y-4">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'រមណីយដ្ឋានទេសចរណ៍ល្បីៗ' : 'Top Verified Tourist Attractions' }}</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div v-for="(att, idx) in selectedProvince.attractions" :key="idx" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <h4 class="font-bold text-sm text-blue-900">{{ currentLang === 'kh' ? att.nameKh : att.name }}</h4>
+                  <p class="text-xs text-slate-600 leading-relaxed">{{ att.desc }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Hospitals -->
+            <div v-if="provinceTab === 'hospitals'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'មន្ទីរពេទ្យ & សេវាសុខាភិបាលក្នុងខេត្ត' : 'Provincial Referral Hospitals & Clinics' }}</h3>
+              <div class="space-y-2">
+                <div v-for="(h, idx) in selectedProvince.hospitals" :key="idx" class="p-3.5 rounded-xl bg-slate-50 flex items-center justify-between text-xs">
+                  <span class="font-bold text-slate-800">🏥 {{ h }}</span>
+                  <button @click="callNumber(h)" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-xs">
+                    {{ t.callNow }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Restaurants -->
+            <div v-if="provinceTab === 'restaurants'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'ម្ហូបពិសេស & អាហារដ្ឋានក្នុងតំបន់' : 'Local Food Specialties & Dining' }}</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div v-for="(r, idx) in selectedProvince.restaurants" :key="idx" class="p-3 rounded-xl bg-slate-50 font-semibold text-slate-800">
+                  🍜 {{ r }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Hotels -->
+            <div v-if="provinceTab === 'hotels'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'សណ្ឋាគារ & ផ្ទះសំណាក់' : 'Hotels, Eco-Lodges & Accommodations' }}</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div v-for="(hotel, idx) in selectedProvince.hotels" :key="idx" class="p-3 rounded-xl bg-slate-50 font-semibold text-slate-800">
+                  🏨 {{ hotel }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Local Jobs -->
+            <div v-if="provinceTab === 'jobs'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'វិស័យការងារ & មុខរបរក្នុងខេត្ត' : 'Regional Employment & Enterprise Sectors' }}</h3>
+              <div class="space-y-2 text-xs">
+                <div v-for="(j, idx) in selectedProvince.jobs" :key="idx" class="p-3 rounded-xl bg-slate-50 font-medium text-slate-700">
+                  💼 {{ j }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Housing -->
+            <div v-if="provinceTab === 'housing'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'លំនៅឋាន & អចលនទ្រព្យ' : 'Housing & Real Estate Areas' }}</h3>
+              <div class="space-y-2 text-xs">
+                <div v-for="(house, idx) in selectedProvince.housing" :key="idx" class="p-3 rounded-xl bg-slate-50 font-medium text-slate-700">
+                  🏠 {{ house }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. Education -->
+            <div v-if="provinceTab === 'education'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'គ្រឹះស្ថានអប់រំ & សាកលវិទ្យាល័យ' : 'Universities & Technical Institutes' }}</h3>
+              <div class="space-y-2 text-xs">
+                <div v-for="(edu, idx) in selectedProvince.education" :key="idx" class="p-3 rounded-xl bg-slate-50 font-medium text-slate-700">
+                  🎓 {{ edu }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 8. Transportation -->
+            <div v-if="provinceTab === 'transportation'" class="space-y-3">
+              <h3 class="font-bold text-base text-slate-900">{{ currentLang === 'kh' ? 'មធ្យោបាយធ្វើដំណើរ & ផ្លូវតភ្ជាប់' : 'Transportation Routes & Terminals' }}</h3>
+              <div class="space-y-2 text-xs">
+                <div v-for="(trans, idx) in selectedProvince.transportation" :key="idx" class="p-3 rounded-xl bg-slate-50 font-medium text-slate-700">
+                  🚌 {{ trans }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- 4. JOBS IN CAMBODIA -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'jobs'" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ t.jobsTitle }}</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">{{ t.jobsSubtitle }}</p>
+        </div>
+
+        <div class="space-y-4">
+          <div v-for="job in filteredJobs" :key="job.id" class="place-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold">{{ job.type }}</span>
+                <h3 class="font-bold text-slate-900 text-lg mt-1">{{ currentLang === 'kh' ? job.titleKh : job.title }}</h3>
+                <p class="text-xs text-slate-500 font-medium">{{ currentLang === 'kh' ? job.companyKh : job.company }} • {{ currentLang === 'kh' ? job.locationKh : job.location }}</p>
+              </div>
+              <div class="text-emerald-600 font-bold text-base font-koulen">{{ job.salary }}</div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">{{ currentLang === 'kh' ? job.descriptionKh : job.description }}</p>
+
+            <div class="space-y-1.5 pt-2 text-xs">
+              <strong class="text-slate-800 block font-semibold">{{ t.jobRequirements }}:</strong>
+              <ul class="list-disc pl-5 text-slate-600 space-y-1">
+                <li v-for="(req, idx) in (currentLang === 'kh' ? job.requirementsKh : job.requirements)" :key="idx">{{ req }}</li>
+              </ul>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end">
+              <button @click="selectedJob = job; showApplyModal = true" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition">
+                {{ t.applyNow }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- 5. 24/7 EMERGENCY HOTLINES -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'emergency'" class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-red-600">{{ t.emergencyTitle }}</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">{{ t.emergencySubtitle }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div @click="callNumber('117')" class="place-card p-6 text-center cursor-pointer hover:border-red-400">
+            <i class="fa-solid fa-shield-halved text-3xl text-blue-700 mb-2"></i>
+            <h3 class="font-bold text-sm text-slate-800">{{ t.police117 }}</h3>
+            <div class="text-3xl font-bold font-koulen text-red-600 my-1">117</div>
+            <span class="text-xs text-slate-400">National Police 24/7</span>
+          </div>
+
+          <div @click="callNumber('118')" class="place-card p-6 text-center cursor-pointer hover:border-red-400">
+            <i class="fa-solid fa-fire-extinguisher text-3xl text-red-600 mb-2"></i>
+            <h3 class="font-bold text-sm text-slate-800">{{ t.fire118 }}</h3>
+            <div class="text-3xl font-bold font-koulen text-red-600 my-1">118</div>
+            <span class="text-xs text-slate-400">Fire & Disaster Rescue</span>
+          </div>
+
+          <div @click="callNumber('119')" class="place-card p-6 text-center cursor-pointer hover:border-red-400">
+            <i class="fa-solid fa-truck-medical text-3xl text-emerald-600 mb-2"></i>
+            <h3 class="font-bold text-sm text-slate-800">{{ t.ambulance119 }}</h3>
+            <div class="text-3xl font-bold font-koulen text-emerald-700 my-1">119</div>
+            <span class="text-xs text-slate-400">National SAMU Ambulance</span>
+          </div>
+        </div>
+
+        <div class="place-card p-6 space-y-3">
+          <h3 class="font-bold text-sm text-slate-900">{{ t.otherContacts }}</h3>
+          <div class="divide-y divide-slate-100 text-xs">
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1288')">
+              <span>Kantha Bopha Children's Hospital</span>
+              <strong class="text-red-600 font-bold">1288</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1286')">
+              <span>NSSF (National Social Security Fund)</span>
+              <strong class="text-red-600 font-bold">1286</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1298')">
+              <span>Electricite du Cambodge (EDC 24/7 Outage)</span>
+              <strong class="text-red-600 font-bold">1298</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('023 724 046')">
+              <span>Phnom Penh Water Supply (PPWSA)</span>
+              <strong class="text-red-600 font-bold">023 724 046</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1285')">
+              <span>Anti-Cybercrime Police Department</span>
+              <strong class="text-red-600 font-bold">1285</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1280')">
+              <span>Child Helpline Cambodia (Toll Free)</span>
+              <strong class="text-red-600 font-bold">1280</strong>
+            </div>
+            <div class="py-2.5 flex justify-between items-center cursor-pointer" @click="callNumber('1399')">
+              <span>Road Traffic Assistance</span>
+              <strong class="text-red-600 font-bold">1399</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- 6. ABOUT CAMLIFE -->
+      <!-- ========================================================= -->
+      <div v-if="currentPage === 'about'" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ t.aboutTitle }}</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">{{ t.aboutSubtitle }}</p>
+        </div>
+
+        <div class="place-card p-6 sm:p-8 space-y-3 border-l-4 border-l-amber-500">
+          <h2 class="text-base font-bold text-blue-900 uppercase tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-bullseye text-amber-500"></i>
+            <span>{{ t.missionTitle }}</span>
+          </h2>
+          <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-light">
+            {{ t.missionText }}
+          </p>
+        </div>
+
+        <!-- Angkor Hero Card -->
+        <div class="relative rounded-3xl overflow-hidden bg-slate-900 text-white p-10 shadow-lg">
+          <img src="/assets/angkor_wat_hero-DJoy_x8Q.jpg" alt="Angkor Wat" class="absolute inset-0 w-full h-full object-cover opacity-35">
+          <div class="relative z-10 max-w-xl space-y-2">
+            <p class="text-xl sm:text-2xl font-serif italic font-medium leading-snug">
+              "{{ t.aboutQuote }}"
+            </p>
+            <span class="text-xs text-amber-300 font-semibold tracking-wider uppercase block">CamLife • ជីវិតកម្ពុជា</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- UNIFIED PLACE DETAIL MODAL -->
+    <div v-if="selectedPlace" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-4 border border-slate-200 max-h-[90vh] overflow-y-auto">
+        
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold">
+              {{ currentLang === 'kh' ? selectedPlace.categoryLabelKh : selectedPlace.categoryLabel }}
+            </span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1">
+              {{ currentLang === 'kh' ? selectedPlace.nameKh : selectedPlace.name }}
+            </h3>
+          </div>
+          <button @click="closePlaceDetail" class="text-slate-400 hover:text-slate-600 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <img :src="selectedPlace.image" :alt="selectedPlace.name" class="w-full h-48 rounded-2xl object-cover shadow-sm">
+
+        <div class="space-y-2 text-xs text-slate-700">
+          <p class="leading-relaxed">{{ currentLang === 'kh' ? selectedPlace.descriptionKh : selectedPlace.description }}</p>
+          
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-map-pin text-red-500 w-4"></i>
+              <span class="font-medium">{{ currentLang === 'kh' ? selectedPlace.addressKh : selectedPlace.address }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-regular fa-clock text-emerald-600 w-4"></i>
+              <span class="font-semibold text-emerald-700">{{ currentLang === 'kh' ? selectedPlace.hoursKh : selectedPlace.hours }}</span>
+            </div>
+            <div v-if="selectedPlace.phone" class="flex items-center gap-2">
+              <i class="fa-solid fa-phone text-blue-600 w-4"></i>
+              <span class="font-medium">{{ selectedPlace.phone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <button @click="callNumber(selectedPlace.phone)" class="py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-phone"></i>
+            <span>{{ t.callNow }}</span>
+          </button>
+          <button @click="openDirections(selectedPlace)" class="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-location-arrow"></i>
+            <span>{{ t.getDirections }}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JOB APPLICATION MODAL -->
+    <div v-if="showApplyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base text-slate-900">Apply for {{ currentLang === 'kh' ? selectedJob.titleKh : selectedJob.title }}</h3>
+          <button @click="showApplyModal = false" class="text-slate-400 hover:text-slate-600 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="submitJobApplication" class="space-y-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Full Name *</label>
+            <input v-model="applyForm.fullName" required type="text" placeholder="e.g. Sok Piseth" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Phone Number *</label>
+            <input v-model="applyForm.phone" required type="tel" placeholder="e.g. 012 345 678" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Email Address</label>
+            <input v-model="applyForm.email" type="email" placeholder="e.g. sok@gmail.com" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Introduction / CV Link</label>
+            <textarea v-model="applyForm.message" rows="2" placeholder="Tell us briefly about your experience..." class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-blue-500"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition">
+            Submit Application
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-auto text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-2 cursor-pointer" @click="setPage('home')">
+          <div class="w-6 h-6 rounded-lg bg-blue-900 text-amber-300 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-landmark-dome"></i>
+          </div>
+          <span class="font-koulen text-lg font-bold text-blue-950">Cam<span class="text-amber-500">Life</span></span>
+          <span class="text-[10px] text-slate-400 font-normal">| ជីវិតកម្ពុជា</span>
+        </div>
+
+        <div class="flex items-center gap-4 text-slate-400 text-sm">
+          <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-telegram"></i></a>
+          <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+
+        <div>
+          <span class="font-medium text-slate-600">{{ t.footerTagline }}</span>
+        </div>
+
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Vue 3 Module Script -->
+</body>
+</html>

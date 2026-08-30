@@ -1,0 +1,16 @@
+{
+  "name": "camlife-cambodia-portal",
+  "version": "1.0.0",
+  "description": "CamLife (ជីវិតកម្ពុជា) - All-in-One Daily Life Assistant and Community Portal for Cambodia",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["cambodia", "vue", "tailwind", "khmer", "community-portal", "life-assistant"],
+  "author": "CamLife Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}
